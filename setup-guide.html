@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ScribeAI — Hostinger Deployment Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #060910;
+    --sidebar: #090d14;
+    --surface: #0d1117;
+    --card: #111820;
+    --border: #1a2535;
+    --border2: #213040;
+    --green: #00ff88;
+    --green2: #00cc6a;
+    --cyan: #00d4ff;
+    --muted: #3a5060;
+    --text: #c8d8e4;
+    --text2: #6a8a9a;
+    --yellow: #ffd166;
+    --danger: #ff4466;
+    --purple: #9b72ff;
+    --orange: #ff8c42;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; display: flex; min-height: 100vh; line-height: 1.6; }
+
+  /* LEFT NAV */
+  .guide-nav {
+    width: 260px;
+    flex-shrink: 0;
+    background: var(--sidebar);
+    border-right: 1px solid var(--border);
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    overflow-y: auto;
+    padding-bottom: 2rem;
+  }
+  .guide-nav::-webkit-scrollbar { width: 4px; }
+  .guide-nav::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+  .nav-logo {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    font-family: 'Space Mono', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-logo span { color: var(--text2); }
+  .nav-logo a { font-size: 0.7rem; color: var(--text2); text-decoration: none; font-family: 'Syne', sans-serif; font-weight: 600; }
+  .nav-logo a:hover { color: var(--green); }
+  .nav-section { padding: 1.25rem 1rem 0.5rem; font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; }
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 1rem;
+    margin: 0.1rem 0.5rem;
+    border-radius: 5px;
+    font-size: 0.835rem;
+    font-weight: 600;
+    color: var(--text2);
+    text-decoration: none;
+    transition: all 0.15s;
+    cursor: pointer;
+  }
+  .nav-link:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+  .nav-link.active { color: var(--green); background: rgba(0,255,136,0.07); }
+  .stage-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    background: rgba(0,255,136,0.1);
+    color: var(--green);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    margin-left: auto;
+  }
+  .checklist-summary {
+    margin: 1rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.875rem 1rem;
+    font-size: 0.8rem;
+    color: var(--text2);
+  }
+  .checklist-summary strong { color: var(--green); font-family: 'Space Mono', monospace; }
+  .progress-bar { height: 4px; background: var(--border); border-radius: 2px; margin-top: 0.5rem; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--cyan)); border-radius: 2px; width: 0%; transition: width 0.5s ease; }
+
+  /* MAIN */
+  .guide-main { margin-left: 260px; flex: 1; max-width: 860px; padding: 3rem; }
+
+  h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 0.75rem; }
+  h2 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+  h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text); margin-top: 1.75rem; }
+  p { color: var(--text2); font-size: 0.925rem; line-height: 1.75; margin-bottom: 0.875rem; }
+  a { color: var(--cyan); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  strong { color: var(--text); }
+  code { font-family: 'Space Mono', monospace; color: var(--cyan); font-size: 0.85em; }
+
+  /* STAGE */
+  .stage {
+    margin-bottom: 3.5rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .stage:first-of-type { border-top: none; padding-top: 0; }
+  .stage-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  .stage-circle {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: rgba(0,255,136,0.08);
+    border: 1px solid rgba(0,255,136,0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--green);
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+  }
+  .stage-title-block {}
+  .stage-tag { font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; color: var(--green); text-transform: uppercase; margin-bottom: 0.25rem; }
+
+  /* CODE */
+  pre {
+    background: #04070d;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.25rem;
+    overflow-x: auto;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 1.9;
+    margin: 0.75rem 0 1.25rem;
+  }
+  .c-m { color: var(--muted); }
+  .c-g { color: var(--green); }
+  .c-c { color: var(--cyan); }
+  .c-y { color: var(--yellow); }
+  .c-s { color: #9fc; }
+  .c-t { color: var(--text); }
+  .c-o { color: var(--orange); }
+  .c-p { color: var(--purple); }
+  .c-d { color: var(--danger); }
+
+  /* CALLOUT BOXES */
+  .box {
+    display: flex;
+    gap: 0.875rem;
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-size: 0.875rem;
+    line-height: 1.65;
+  }
+  .box-icon { flex-shrink: 0; font-size: 1.1rem; }
+  .box p { margin: 0; }
+  .box.info { background: rgba(0,255,136,0.04); border: 1px solid rgba(0,255,136,0.15); color: var(--text2); }
+  .box.warn { background: rgba(255,209,102,0.04); border: 1px solid rgba(255,209,102,0.2); color: #c0a040; }
+  .box.success { background: rgba(0,255,136,0.06); border: 1px solid rgba(0,255,136,0.25); color: var(--green); }
+  .box.danger { background: rgba(255,68,102,0.04); border: 1px solid rgba(255,68,102,0.2); color: #ff8888; }
+
+  /* STEP LIST */
+  .steps { list-style: none; margin: 1rem 0; }
+  .steps li {
+    display: flex;
+    gap: 1rem;
+    padding: 0.875rem 0;
+    border-bottom: 1px solid rgba(26,37,53,0.6);
+    font-size: 0.9rem;
+  }
+  .steps li:last-child { border-bottom: none; }
+  .step-n {
+    width: 24px; height: 24px;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--cyan);
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  /* CHECKLIST */
+  .checklist { list-style: none; margin: 1rem 0; }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(26,37,53,0.5);
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .check-box {
+    width: 18px; height: 18px;
+    border: 1px solid var(--border2);
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    font-size: 0.7rem;
+  }
+  .checklist li.done .check-box { background: var(--green); border-color: var(--green); color: #000; }
+  .checklist li.done span { text-decoration: line-through; color: var(--muted); }
+
+  /* ENV TABLE */
+  .env-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.845rem; }
+  .env-table th { font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding: 0.6rem 1rem; text-align: left; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.2); }
+  .env-table td { padding: 0.7rem 1rem; border-bottom: 1px solid rgba(26,37,53,0.6); vertical-align: top; }
+  .env-table tr:last-child td { border-bottom: none; }
+  .env-key { font-family: 'Space Mono', monospace; font-size: 0.78rem; color: var(--green); }
+  .env-desc { color: var(--text2); font-size: 0.83rem; }
+  .env-req { font-family: 'Space Mono', monospace; font-size: 0.62rem; padding: 0.15rem 0.4rem; border-radius: 3px; }
+  .r { background: rgba(255,68,102,0.1); color: var(--danger); border: 1px solid rgba(255,68,102,0.2); }
+  .o { background: rgba(106,138,154,0.1); color: var(--text2); border: 1px solid var(--border); }
+
+  /* FINAL CHECKLIST */
+  .final-checklist { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .final-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .final-row:last-child { border-bottom: none; }
+  .final-row:hover { background: rgba(255,255,255,0.02); }
+  .final-check { width: 20px; height: 20px; border: 1px solid var(--border2); border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; transition: all 0.2s; margin-top: 0.1rem; }
+  .final-row.done .final-check { background: var(--green); border-color: var(--green); color: #000; }
+  .final-row.done .final-text { color: var(--muted); text-decoration: line-through; }
+  .final-text { font-size: 0.9rem; font-weight: 600; }
+  .final-sub { font-size: 0.78rem; color: var(--text2); margin-top: 0.2rem; }
+  .final-row.done .final-sub { color: var(--muted); }
+  .final-stage { margin-left: auto; font-family: 'Space Mono', monospace; font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: 3px; color: var(--text2); border: 1px solid var(--border); white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<nav class="guide-nav">
+  <div class="nav-logo">
+    scribe<span>AI</span>
+    <a href="index.html">← Back</a>
+  </div>
+
+  <div class="nav-section">Setup Guide</div>
+  <a href="#overview" class="nav-link active">Overview</a>
+  <a href="#stage1" class="nav-link">1. Hostinger VPS <span class="stage-num">S1</span></a>
+  <a href="#stage2" class="nav-link">2. Install Dependencies <span class="stage-num">S2</span></a>
+  <a href="#stage3" class="nav-link">3. Clone & Setup <span class="stage-num">S3</span></a>
+  <a href="#stage4" class="nav-link">4. Supabase Setup <span class="stage-num">S4</span></a>
+  <a href="#stage5" class="nav-link">5. Environment Config <span class="stage-num">S5</span></a>
+  <a href="#stage6" class="nav-link">6. Nginx + SSL <span class="stage-num">S6</span></a>
+  <a href="#stage7" class="nav-link">7. PM2 + Launch <span class="stage-num">S7</span></a>
+  <a href="#stage8" class="nav-link">8. Lemon Squeezy <span class="stage-num">S8</span></a>
+  <a href="#stage9" class="nav-link">9. Domain DNS <span class="stage-num">S9</span></a>
+  <a href="#checklist" class="nav-link">Final Checklist ✓</a>
+
+  <div class="nav-section">Maintenance</div>
+  <a href="#logs" class="nav-link">Logs & Monitoring</a>
+  <a href="#updates" class="nav-link">Pushing Updates</a>
+  <a href="#troubleshooting" class="nav-link">Troubleshooting</a>
+
+  <div class="checklist-summary">
+    <div>Progress: <strong id="progressText">0 / 11</strong> steps complete</div>
+    <div class="progress-bar"><div class="progress-fill" id="progressBar"></div></div>
+  </div>
+</nav>
+
+<main class="guide-main">
+
+  <!-- OVERVIEW -->
+  <section id="overview" class="stage" style="border-top:none;padding-top:0">
+    <div class="stage-header">
+      <div>
+        <div class="stage-tag">// deployment guide</div>
+        <h1>Deploy ScribeAI to Hostinger</h1>
+        <p>This guide walks you through deploying the complete ScribeAI stack to a Hostinger VPS — from purchasing the server to a live, SSL-secured API with billing. Estimated setup time: <strong>45–90 minutes</strong>.</p>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:1rem">
+        <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);text-transform:uppercase;margin-bottom:0.25rem">Server</div>
+        <div style="font-weight:700;font-size:0.95rem">Hostinger KVM 2</div>
+        <div style="font-size:0.8rem;color:var(--text2)">2 vCPU · 8 GB RAM · $14/mo</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:1rem">
+        <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);text-transform:uppercase;margin-bottom:0.25rem">OS</div>
+        <div style="font-weight:700;font-size:0.95rem">Ubuntu 22.04 LTS</div>
+        <div style="font-size:0.8rem;color:var(--text2)">Minimal server image</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:1rem">
+        <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);text-transform:uppercase;margin-bottom:0.25rem">Stack</div>
+        <div style="font-weight:700;font-size:0.95rem">FastAPI + Supabase</div>
+        <div style="font-size:0.8rem;color:var(--text2)">Python 3.11 · Nginx · PM2</div>
+      </div>
+    </div>
+
+    <div class="box info">
+      <span class="box-icon">ℹ️</span>
+      <p>You'll need: a <strong>Hostinger account</strong>, a <strong>domain name</strong> (can be purchased through Hostinger), a <strong>Supabase account</strong> (free tier works), a <strong>Lemon Squeezy account</strong> (for billing), and your <strong>ScribeAI GitHub repo</strong>.</p>
+    </div>
+  </section>
+
+  <!-- STAGE 1: HOSTINGER VPS -->
+  <section id="stage1" class="stage">
+    <div class="stage-header">
+      <div class="stage-circle">01</div>
+      <div class="stage-title-block">
+        <div class="stage-tag">// hostinger setup</div>
+        <h2>Purchase & Configure Your Hostinger VPS</h2>
+      </div>
+    </div>
+
+    <p>ScribeAI requires a VPS (Virtual Private Server) — not shared hosting. Hostinger's KVM plans give you full root access, which is required to run FastAPI, Nginx, and PM2.</p>
+
+    <h3>1.1 — Purchase the VPS</h3>
+    <ul class="steps">
+      <li><span class="step-n">1</span>Go to <strong>hostinger.com → VPS Hosting</strong>. Select <strong>KVM 2</strong> (2 vCPU, 8 GB RAM) — this is sufficient for a production ScribeAI deployment.</li>
+      <li><span class="step-n">2</span>Choose <strong>Ubuntu 22.04 LTS</strong> as the operating system. Do not choose other distributions.</li>
+      <li><span class="step-n">3</span>Choose a datacenter region close to your primary users. For India/Asia: <strong>Singapore</strong>. For US users: <strong>US East</strong>.</li>
+      <li><span class="step-n">4</span>Complete checkout. Your VPS will be provisioned within 2–5 minutes.</li>
+    </ul>
+
+    <h3>1.2 — Get Your Server IP & SSH Access</h3>
+    <p>After provisioning, go to <strong>hPanel → VPS → Manage</strong>. You'll see your server IP address and the root password Hostinger generated.</p>
+
+    <div class="box warn">
+      <span class="box-icon">⚠️</span>
+      <p>Save your <strong>root password</strong> from hPanel immediately. Hostinger only shows it once. If you lose it, you'll need to use hPanel's emergency console to reset it.</p>
+    </div>
+
+    <h3>1.3 — First SSH Login</h3>
+    <pre><span class="c-m"># Connect to your server (replace with your actual IP)</span>
+<span class="c-c">ssh</span> root@<span class="c-y">YOUR_SERVER_IP</span>
+
+<span class="c-m"># You'll be prompted to change the root password on first login</span>
+<span class="c-m"># Enter the Hostinger-generated password, then set a new strong password</span></pre>
+
+    <h3>1.4 — Set Up SSH Key Authentication (Recommended)</h3>
+    <pre><span class="c-m"># On your LOCAL machine — generate a key pair if you don't have one</span>
+<span class="c-c">ssh-keygen</span> -t ed25519 -C <span class="c-s">"scribeai-vps"</span>
+
+<span class="c-m"># Copy your public key to the server</span>
+<span class="c-c">ssh-copy-id</span> root@<span class="c-y">YOUR_SERVER_IP</span>
+
+<span class="c-m"># Now you can SSH without a password</span>
+<span class="c-c">ssh</span> root@<span class="c-y">YOUR_SERVER_IP</span></pre>
+  </section>
+
+  <!-- STAGE 2: INSTALL DEPENDENCIES -->
+  <section id="stage2" class="stage">
+    <div class="stage-header">
+      <div class="stage-circle">02</div>
+      <div class="stage-title-block">
+        <div class="stage-tag">// server setup</div>
+        <h2>Install All Dependencies</h2>
+      </div>
+    </div>
+
+    <p>Run this entire block as one command after SSH-ing into your VPS. It installs Python, Node.js, Nginx, Certbot, and PM2 in a single pass.</p>
+
+    <pre><span class="c-m"># Update system packages</span>
+<span class="c-c">apt update</span> && <span class="c-c">apt upgrade</span> -y
+
+<span class="c-m"># Install core tools</span>
+<span class="c-c">apt install</span> -y python3-pip python3-venv git nginx certbot python3-certbot-nginx curl unzip
+
+<span class="c-m"># Install Node.js 20 (LTS)</span>
+<span class="c-c">curl</span> -fsSL https://deb.nodesource.com/setup_20.x | bash -
+<span class="c-c">apt install</span> -y nodejs
+
+<span class="c-m"># Install PM2 globally</span>
+<span class="c-c">npm install</span> -g pm2
+
+<span class="c-m"># Verify installations</span>
+<span class="c-c">python3</span> --version   <span class="c-m"># Should be 3.10+</span>
+<span class="c-c">node</span> --version      <span class="c-m"># Should be v20.x</span>
+<span class="c-c">pm2</span> --version       <span class="c-m"># Should be 5.x</span>
+<span class="c-c">nginx</span> -v            <span class="c-m"># Should be nginx/1.18+</span></pre>
+
+    <div class="box success">
+      <span class="box-icon">✅</span>
+      <p>You should see version numbers for all four tools. If any fail, re-run the specific install command for that tool.</p>
+    </div>
+  </section>
+
+  <!-- STAGE 3: CLONE -->
+  <section id="stage3" class="stage">
+    <div class="stage-header">
+      <div class="stage-circle">03</div>
+      <div class="stage-title-block">
+        <div class="stage-tag">// project setup</div>
+        <h2>Clone the Repo & Set Up Python Environment</h2>
+      </div>
+    </div>
+
+    <pre><span class="c-m"># Create the project directory</span>
+<span class="c-c">mkdir</span> -p /var/www
+<span class="c-c">cd</span> /var/www
+
+<span class="c-m"># Clone your ScribeAI repository from GitHub</span>
+<span class="c-c">git clone</span> https://github.com/YOUR_USERNAME/scribeai.git scribeai
+<span class="c-c">cd</span> scribeai
+
+<span class="c-m"># Create and activate Python virtual environment</span>
+<span class="c-c">python3</span> -m venv venv
+<span class="c-c">source</span> venv/bin/activate
+
+<span class="c-m"># Install Python dependencies</span>
+<span class="c-c">pip install</span> -r requirements.txt
+
+<span class="c-m"># Your terminal prompt should now show (venv)</span>
+<span class="c-m"># (venv) root@hostname:/var/www/scribeai#</span></pre>
+
+    <div class="box info">
+      <span class="box-icon">💡</span>
+      <p>The <code>requirements.txt</code> should include: <code>fastapi</code>, <code>uvicorn</code>, <code>supabase</code>, <code>python-jose[cryptography]</code>, <code>PyJWT</code>, <code>openai</code>, <code>anthropic</code>, <code>python-dotenv</code>, <code>python-multipart</code>.</p>
+    </div>
+
+    <h3>GitHub Authentication (Personal Access Token)</h3>
+    <p>GitHub no longer accepts password authentication. Use a Personal Access Token (PAT) when cloning private repos or pushing changes.</p>
+    <ul class="steps">
+      <li><span class="step-n">1</span>Go to <strong>github.com → Profile → Settings → Developer Settings → Personal access tokens → Tokens (classic)</strong>.</li>
+      <li><span class="step-n">2</span>Click <strong>Generate new token</strong>. Select scope: <code>repo</code>. Copy the token immediately.</li>
+      <li><span class="step-n">3</span>Use the token in your clone URL: <code>https://YOUR_TOKEN@github.com/username/scribeai.git</code></li>
+    </ul>
+  </section>
+
+  <!-- STAGE 4: SUPABASE -->
+  <section id="stage4" class="stage">
+    <div class="stage-header">
+      <div class="stage-circle">04</div>
+      <div class="stage-title-block">
+        <div class="stage-tag">// database + auth</div>
+        <h2>Supabase: Database, Auth & Storage</h2>
+      </div>
+    </div>
+
+    <p>Supabase provides the PostgreSQL database, user authentication, and file storage for ScribeAI. The free tier is sufficient to start.</p>
+
+    <h3>4.1 — Create the Supabase Project</h3>
+    <ul class="steps">
+      <li><span class="step-n">1</span>Go to <strong>supabase.com → New Project</strong>. Name it <code>scribeai</code>.</li>
+      <li><span class="step-n">2</span>Select region: <strong>Southeast Asia (Singapore)</strong> for lowest latency if your server is in Singapore.</li>
+      <li><span class="step-n">3</span>Set a strong database password. Save it — you won't see it again.</li>
+    </ul>
+
+    <h3>4.2 — Enable Email Authentication</h3>
+    <p>Go to <strong>Authentication → Sign In / Providers → Email</strong> and enable it. This allows users to sign up with email + password via Supabase Auth.</p>
+
+    <h3>4.3 — Get Your Keys</h3>
+    <p>Go to <strong>Settings → Integrations → Data API</strong>. Copy the <strong>Project URL</strong> (ends in <code>.supabase.co</code>).</p>
+    <p>Go to <strong>Settings → API Keys → Legacy API keys</strong> tab. Copy the <strong>service_role</strong> key.</p>
+
+    <div class="box danger">
+      <span class="box-icon">🚨</span>
+      <p>Always use the <strong>service_role</strong> key in your backend — never the anon key. The service_role key bypasses Row Level Security (RLS) so your server can write to the database. Never expose it in client-side code.</p>
+    </div>
+
+    <h3>4.4 — Create Database Tables</h3>
+    <p>Go to <strong>SQL Editor → New Query</strong> and run this SQL:</p>
+
+    <pre><span class="c-m">-- API keys table: ties users to their quota and plan</span>
+<span class="c-p">CREATE TABLE</span> <span class="c-c">api_keys</span> (
+  id           UUID    <span class="c-p">DEFAULT</span> gen_random_uuid() <span class="c-p">PRIMARY KEY</span>,
+  email        TEXT    <span class="c-p">UNIQUE NOT NULL</span>,
+  api_key      TEXT    <span class="c-p">UNIQUE NOT NULL</span>,
+  user_id      UUID    <span class="c-p">REFERENCES</span> auth.users(id),
+  plan         TEXT    <span class="c-p">DEFAULT</span> <span class="c-s">'hobby'</span>,
+  tokens_limit <span class="c-p">INTEGER DEFAULT</span> <span class="c-y">50000</span>,
+  tokens_used  <span class="c-p">NUMERIC DEFAULT</span> <span class="c-y">0</span>,
+  created_at   <span class="c-p">TIMESTAMP DEFAULT</span> NOW()
+);
+
+<span class="c-p">CREATE INDEX</span> idx_api_keys_user_id <span class="c-p">ON</span> api_keys(user_id);
+<span class="c-p">CREATE INDEX</span> idx_api_keys_key <span class="c-p">ON</span> api_keys(api_key);
+
+<span class="c-m">-- Generation history log</span>
+<span class="c-p">CREATE TABLE</span> <span class="c-c">generations</span> (
+  id               BIGSERIAL     <span class="c-p">PRIMARY KEY</span>,
+  api_key          TEXT          <span class="c-p">NOT NULL</span>,
+  generation_id    TEXT          <span class="c-p">NOT NULL</span>,
+  content_type     TEXT          <span class="c-p">NOT NULL</span>,
+  topic            TEXT,
+  content          TEXT,
+  tokens_used      <span class="c-p">INTEGER DEFAULT</span> <span class="c-y">0</span>,
+  model            TEXT,
+  latency_ms       <span class="c-p">INTEGER</span>,
+  created_at       TIMESTAMPTZ   <span class="c-p">NOT NULL DEFAULT</span> now()
+);
+
+<span class="c-p">CREATE INDEX</span> idx_generations_api_key <span class="c-p">ON</span> generations(api_key);</pre>
+
+    <h3>4.5 — Enable Row Level Security (RLS)</h3>
+    <pre><span class="c-m">-- Enable RLS on both tables</span>
+<span class="c-p">ALTER TABLE</span> api_keys <span class="c-p">ENABLE ROW LEVEL SECURITY</span>;
+<span class="c-p">ALTER TABLE</span> generations <span class="c-p">ENABLE ROW LEVEL SECURITY</span>;
+
+<span class="c-m">-- Users can only read/insert their own API key</span>
+<span class="c-p">CREATE POLICY</span> <span class="c-s">"user_own_key_select"</span> <span class="c-p">ON</span> api_keys
+  <span class="c-p">FOR SELECT USING</span> (auth.uid() = user_id);
+
+<span class="c-p">CREATE POLICY</span> <span class="c-s">"user_own_key_insert"</span> <span class="c-p">ON</span> api_keys
+  <span class="c-p">FOR INSERT WITH CHECK</span> (auth.uid() = user_id);
+
+<span class="c-m">-- Users can only see their own generations</span>
+<span class="c-p">CREATE POLICY</span> <span class="c-s">"user_own_gens"</span> <span class="c-p">ON</span> generations
+  <span class="c-p">FOR SELECT USING</span> (
+    api_key <span class="c-p">IN</span> (<span class="c-p">SELECT</span> api_key <span class="c-p">FROM</span> api_keys <span class="c-p">WHERE</span> user_id = auth.uid())
+  );</pre>
+
+    <h3>4.6 — Create the Token Counter Function</h3>
+    <pre><span class="c-m">-- RPC function to safely increment token usage</span>
+<span class="c-p">CREATE OR REPLACE FUNCTION</span> <span class="c-c">increment_tokens_used</span>(key_val TEXT, delta INT)
+<span class="c-p">RETURNS VOID AS</span> $$
+<span class="c-p">BEGIN</span>
+  <span class="c-p">UPDATE</span> api_keys
+  <span class="c-p">SET</span> tokens_used = tokens_used + delta
+  <span class="c-p">WHERE</span> api_key = key_val;
+<span class="c-p">END</span>;
+$$ <span class="c-p">LANGUAGE</span> plpgsql;</pre>
+  </section>
+
+  <!-- STAGE 5: ENV CONFIG -->
+  <section id="stage5" class="stage">
+    <div class="stage-header">
+      <div class="stage-circle">05</div>
+      <div class="stage-title-block">
+        <div class="stage-tag">// configuration</div>
+        <h2>Create the .env Configuration File</h2>
+      </div>
+    </div>
+
+    <p>The <code>.env</code> file stores all secrets. It is never committed to GitHub. Create it manually on the server.</p>
+
+    <pre><span class="c-c">nano</span> /var/www/scribeai/.env</pre>
+
+    <p>Paste this content and fill in each value:</p>
+
+    <pre><span class="c-m"># ── Supabase ────────────────────────────────────────</span>
+<span class="c-g">SUPABASE_URL</span>=<span class="c-s">https://your-project-ref.supabase.co</span>
+<span class="c-g">SUPABASE_KEY</span>=<span class="c-s">eyJhbGciOi...your-service-role-key</span>
+<span class="c-g">SUPABASE_JWT_SECRET</span>=<span class="c-s">your-legacy-jwt-secret-here</span>
+
+<span class="c-m"># ── AI Model APIs ────────────────────────────────────</span>
+<span class="c-g">OPENAI_API_KEY</span>=<span class="c-s">sk-proj-your-openai-key-here</span>
+<span class="c-g">ANTHROPIC_API_KEY</span>=<span class="c-s">sk-ant-your-anthropic-key-here</span>
+
+<span class="c-m"># ── Billing (Lemon Squeezy) ──────────────────────────</span>
+<span class="c-g">LEMONSQUEEZY_WEBHOOK_SECRET</span>=<span class="c-s">your-webhook-signing-secret</span>
+
+<span class="c-m"># ── App Config ──────────────────────────────────────</span>
+<span class="c-g">APP_PORT</span>=<span class="c-s">8000</span>
+<span class="c-g">ENVIRONMENT</span>=<span class="c-s">production</span></pre>
+
+    <p>Save and exit nano: <strong>Ctrl+O → Enter → Ctrl+X</strong></p>
+
+    <table class="env-table">
+      <thead><tr><th>Variable</th><th>Where to Find It</th><th></th></tr></thead>
+      <tbody>
+        <tr><td class="env-key">SUPABASE_URL</td><td class="env-desc">Supabase → Settings → Integrations → Data API → Project URL</td><td><span class="env-req r">required</span></td></tr>
+        <tr><td class="env-key">SUPABASE_KEY</td><td class="env-desc">Supabase → Settings → API Keys → Legacy API keys → service_role</td><td><span class="env-req r">required</span></td></tr>
+        <tr><td class="env-key">SUPABASE_JWT_SECRET</td><td class="env-desc">Supabase → Settings → JWT Keys → Legacy JWT Secret (HS256)</td><td><span class="env-req r">required</span></td></tr>
+        <tr><td class="env-key">OPENAI_API_KEY</td><td class="env-desc">platform.openai.com → API Keys → Create new secret key</td><td><span class="env-req r">required</span></td></tr>
+        <tr><td class="env-key">ANTHROPIC_API_KEY</td><td class="env-desc">console.anthropic.com → API Keys</td><td><span class="env-req o">optional</span></td></tr>
+        <tr><td class="env-key">LEMONSQUEEZY_WEBHOOK_SECRET</td><td class="env-desc">Generated by you via <code>openssl rand -hex 32</code>, pasted into Lemon Squeezy</td><td><span class="env-req o">optional</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- STAGE 6: NGINX -->
+  <section id="stage6" class="stage">
+    <div class="stage-header">
+      <div class="stage-circle">06</div>
+      <div class="stage-title-block">
+        <div class="stage-tag">// web server + ssl</div>
+        <h2>Configure Nginx & Install SSL Certificate</h2>
+      </div>
+    </div>
+
+    <h3>6.1 — Create the Nginx Config File</h3>
+    <pre><span class="c-c">nano</span> /etc/nginx/sites-available/scribeai</pre>
+
+    <p>Paste this config (replace <code>yourdomain.com</code> with your actual domain):</p>
+
+    <pre><span class="c-t">server {</span>
+    <span class="c-c">server_name</span> <span class="c-y">yourdomain.com</span> <span class="c-y">www.yourdomain.com</span><span class="c-t">;</span>
+
+    <span class="c-m"># Increase body size limit for any future file uploads</span>
+    <span class="c-c">client_max_body_size</span> <span class="c-y">10M</span><span class="c-t">;</span>
+
+    <span class="c-c">location</span> / {
+        <span class="c-c">proxy_pass</span>          <span class="c-y">http://127.0.0.1:8000</span><span class="c-t">;</span>
+        <span class="c-c">proxy_http_version</span>  <span class="c-y">1.1</span><span class="c-t">;</span>
+        <span class="c-c">proxy_set_header</span>    Upgrade $http_upgrade<span class="c-t">;</span>
+        <span class="c-c">proxy_set_header</span>    Connection <span class="c-s">'upgrade'</span><span class="c-t">;</span>
+        <span class="c-c">proxy_set_header</span>    Host $host<span class="c-t">;</span>
+        <span class="c-c">proxy_set_header</span>    X-Real-IP $remote_addr<span class="c-t">;</span>
+        <span class="c-c">proxy_set_header</span>    X-Forwarded-For $proxy_add_x_forwarded_for<span class="c-t">;</span>
+        <span class="c-c">proxy_cache_bypass</span>  $http_upgrade<span class="c-t">;</span>
+        <span class="c-c">proxy_read_timeout</span>  <span class="c-y">120s</span><span class="c-t">;</span>
+        <span class="c-c">proxy_connect_timeout</span> <span class="c-y">120s</span><span class="c-t">;</span>
+    }
+<span class="c-t">}</span></pre>
+
+    <h3>6.2 — Enable the Site & Test Config</h3>
+    <pre><span class="c-m"># Create symlink to enable the site</span>
+<span class="c-c">ln</span> -s /etc/nginx/sites-available/scribeai /etc/nginx/sites-enabled/
+
+<span class="c-m"># Remove default site if it exists</span>
+<span class="c-c">rm</span> -f /etc/nginx/sites-enabled/default
+
+<span class="c-m"># Test config syntax</span>
+<span class="c-c">nginx</span> -t
+<span class="c-m"># Should output: configuration file /etc/nginx/nginx.conf syntax is ok</span>
+
+<span class="c-m"># Restart Nginx</span>
+<span class="c-c">systemctl restart</span> nginx
+<span class="c-c">systemctl enable</span> nginx</pre>
+
+    <h3>6.3 — Install SSL with Certbot</h3>
+    <div class="box warn">
+      <span class="box-icon">⚠️</span>
+      <p>Your domain's DNS must be pointing to your server IP <strong>before</strong> running Certbot. See Stage 9 for DNS setup instructions.</p>
+    </div>
+
+    <pre><span class="c-m"># Run Certbot — it auto-detects your Nginx config</span>
+<span class="c-c">certbot</span> --nginx -d <span class="c-y">yourdomain.com</span> -d <span class="c-y">www.yourdomain.com</span>
+
+<span class="c-m"># Follow the prompts:</span>
+<span class="c-m"># - Enter your email address</span>
+<span class="c-m"># - Agree to terms of service</span>
+<span class="c-m"># - Choose whether to redirect HTTP → HTTPS (choose YES)</span>
+
+<span class="c-m"># Verify auto-renewal works</span>
+<span class="c-c">certbot renew</span> --dry-run</pre>
+
+    <div class="box success">
+      <span class="box-icon">✅</span>
+      <p>After Certbot finishes, your site will be accessible via <code>https://yourdomain.com</code>. SSL auto-renews every 90 days.</p>
+    </div>
+  </section>
+
+  <!-- STAGE 7: PM2 -->
+  <section id="stage7" class="stage">
+    <div class="stage-header">
+      <div class="stage-circle">07</div>
+      <div class="stage-title-block">
+        <div class="stage-tag">// process management</div>
+        <h2>Launch the App with PM2</h2>
+      </div>
+    </div>
+
+    <p>PM2 keeps your FastAPI server running as a background process, auto-restarts it on crashes, and survives server reboots.</p>
+
+    <pre><span class="c-m"># Navigate to the project and activate venv</span>
+<span class="c-c">cd</span> /var/www/scribeai
+<span class="c-c">source</span> venv/bin/activate
+
+<span class="c-m"># Start the FastAPI app with PM2</span>
+<span class="c-c">pm2 start</span> <span class="c-s">"uvicorn server:app --host 127.0.0.1 --port 8000"</span> \
+     --name scribeai-api
+
+<span class="c-m"># Save PM2 process list (persists across reboots)</span>
+<span class="c-c">pm2 save</span>
+
+<span class="c-m"># Enable PM2 to start on system boot</span>
+<span class="c-c">pm2 startup</span>
+<span class="c-m"># Copy and run the command PM2 outputs — it will look like:</span>
+<span class="c-m"># sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u root --hp /root</span></pre>
+
+    <h3>Useful PM2 Commands</h3>
+    <pre><span class="c-c">pm2 status</span>                    <span class="c-m"># Check all processes</span>
+<span class="c-c">pm2 logs</span> scribeai-api          <span class="c-m"># View live logs</span>
+<span class="c-c">pm2 logs</span> scribeai-api --lines <span class="c-y">100</span>  <span class="c-m"># View last 100 lines</span>
+<span class="c-c">pm2 restart</span> scribeai-api      <span class="c-m"># Restart the app</span>
+<span class="c-c">pm2 stop</span> scribeai-api         <span class="c-m"># Stop the app</span>
+<span class="c-c">pm2 delete</span> scribeai-api       <span class="c-m"># Remove from PM2</span></pre>
+
+    <h3>Test the API is Live</h3>
+    <pre><span class="c-c">curl</span> https://yourdomain.com/health
+<span class="c-m"># Expected: {"status": "ok", "version": "2.1"}</span>
+
+<span class="c-c">curl</span> -X POST https://yourdomain.com/auth/register \
+  -H <span class="c-s">"Content-Type: application/json"</span> \
+  -d <span class="c-s">'{"email": "test@example.com"}'</span>
+<span class="c-m"># Expected: {"email": "...", "api_key": "sk_live_xxxx", "plan": "hobby"}</span></pre>
+  </section>
+
+  <!-- STAGE 8: LEMON SQUEEZY -->
+  <section id="stage8" class="stage">
+    <div class="stage-header">
+      <div class="stage-circle">08</div>
+      <div class="stage-title-block">
+        <div class="stage-tag">// billing</div>
+        <h2>Set Up Lemon Squeezy Billing</h2>
+      </div>
+    </div>
+
+    <p>Lemon Squeezy is a Merchant of Record — it handles VAT, taxes, and payment processing globally, so you don't have to.</p>
+
+    <h3>8.1 — Create Products</h3>
+    <ul class="steps">
+      <li><span class="step-n">1</span>Sign up at <strong>lemonsqueezy.com</strong> and create a Store.</li>
+      <li><span class="step-n">2</span>Create two <strong>Subscription</strong> products matching your pricing:</li>
+    </ul>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0 1.5rem">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:1rem">
+        <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);margin-bottom:0.5rem">PRODUCT 1</div>
+        <div style="font-weight:700;margin-bottom:0.25rem">ScribeAI Pro</div>
+        <div style="font-size:0.8rem;color:var(--text2)">$19/month · 500,000 tokens</div>
+        <div style="font-size:0.75rem;color:var(--muted);margin-top:0.25rem">Type: Subscription</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:1rem">
+        <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);margin-bottom:0.5rem">PRODUCT 2</div>
+        <div style="font-weight:700;margin-bottom:0.25rem">ScribeAI Scale</div>
+        <div style="font-size:0.8rem;color:var(--text2)">$79/month · 3,000,000 tokens</div>
+        <div style="font-size:0.75rem;color:var(--muted);margin-top:0.25rem">Type: Subscription</div>
+      </div>
+    </div>
+
+    <h3>8.2 — Configure the Webhook</h3>
+    <ul class="steps">
+      <li><span class="step-n">1</span>Go to <strong>Settings → Webhooks → Add webhook</strong>.</li>
+      <li><span class="step-n">2</span>Set webhook URL to: <code>https://yourdomain.com/billing/webhook</code></li>
+      <li><span class="step-n">3</span>Enable these events: <code>order_created</code>, <code>subscription_created</code>, <code>subscription_updated</code>, <code>subscription_cancelled</code>.</li>
+      <li><span class="step-n">4</span>Generate a signing secret on your server: <code style="display:block;margin-top:0.5rem;padding:0.5rem;background:var(--surface);border-radius:4px">openssl rand -hex 32</code></li>
+      <li><span class="step-n">5</span>Copy the output and paste it as the <strong>Signing secret</strong> in Lemon Squeezy. Also add it to your <code>.env</code> as <code>LEMONSQUEEZY_WEBHOOK_SECRET</code>.</li>
+    </ul>
+
+    <pre><span class="c-m"># After updating .env, always restart the app</span>
+<span class="c-c">pm2 restart</span> scribeai-api</pre>
+  </section>
+
+  <!-- STAGE 9: DNS -->
+  <section id="stage9" class="stage">
+    <div class="stage-header">
+      <div class="stage-circle">09</div>
+      <div class="stage-title-block">
+        <div class="stage-tag">// domain setup</div>
+        <h2>Point Your Domain to Hostinger</h2>
+      </div>
+    </div>
+
+    <h3>Option A — Domain purchased through Hostinger (easiest)</h3>
+    <p>If you bought your domain through Hostinger, it's automatically managed in hPanel. Go to <strong>hPanel → Domains → DNS / Nameservers</strong> and add:</p>
+
+    <pre><span class="c-m"># In Hostinger hPanel → Domains → DNS Zone</span>
+<span class="c-m"># Add these two A records:</span>
+
+<span class="c-g">Type</span>  <span class="c-c">Name</span>  <span class="c-y">Value</span>                    <span class="c-t">TTL</span>
+<span class="c-p">A</span>     <span class="c-s">@</span>     YOUR_VPS_IP_ADDRESS      <span class="c-y">3600</span>
+<span class="c-p">A</span>     <span class="c-s">www</span>   YOUR_VPS_IP_ADDRESS      <span class="c-y">3600</span></pre>
+
+    <h3>Option B — Domain from another registrar (Namecheap, GoDaddy, etc.)</h3>
+    <p>Log into your domain registrar and update the nameservers to point to Hostinger, or add A records directly:</p>
+    <ul class="steps">
+      <li><span class="step-n">1</span>Log into your registrar's DNS management panel.</li>
+      <li><span class="step-n">2</span>Find the <strong>A records</strong> section. Delete any existing A records pointing to old servers.</li>
+      <li><span class="step-n">3</span>Add: <code>A  @  YOUR_VPS_IP</code> and <code>A  www  YOUR_VPS_IP</code></li>
+      <li><span class="step-n">4</span>DNS propagation takes 5 minutes to 48 hours. You can check with: <code>nslookup yourdomain.com</code></li>
+    </ul>
+
+    <div class="box info">
+      <span class="box-icon">⏱️</span>
+      <p>Once DNS propagates, run Certbot (Stage 6.3) to get your SSL certificate. The order matters — DNS must resolve to your server before Certbot can verify domain ownership.</p>
+    </div>
+  </section>
+
+  <!-- MAINTENANCE -->
+  <section id="logs" class="stage">
+    <div class="stage-header">
+      <div class="stage-circle" style="background:rgba(0,212,255,0.08);border-color:rgba(0,212,255,0.25);color:var(--cyan)">🔍</div>
+      <div class="stage-title-block">
+        <div class="stage-tag">// monitoring</div>
+        <h2>Logs & Monitoring</h2>
+      </div>
+    </div>
+
+    <pre><span class="c-m"># Real-time API logs</span>
+<span class="c-c">pm2 logs</span> scribeai-api --lines 100
+
+<span class="c-m"># Nginx access + error logs</span>
+<span class="c-c">tail</span> -f /var/log/nginx/access.log
+<span class="c-c">tail</span> -f /var/log/nginx/error.log
+
+<span class="c-m"># Check disk space</span>
+<span class="c-c">df</span> -h
+
+<span class="c-m"># Check memory usage</span>
+<span class="c-c">free</span> -h
+
+<span class="c-m"># Check all PM2 processes</span>
+<span class="c-c">pm2 monit</span>   <span class="c-m"># Opens interactive dashboard</span></pre>
+  </section>
+
+  <section id="updates" class="stage">
+    <div class="stage-header">
+      <div class="stage-circle" style="background:rgba(0,212,255,0.08);border-color:rgba(0,212,255,0.25);color:var(--cyan)">📦</div>
+      <div class="stage-title-block">
+        <div class="stage-tag">// deployment</div>
+        <h2>Pushing Code Updates</h2>
+      </div>
+    </div>
+
+    <pre><span class="c-m"># On your LOCAL machine — commit and push</span>
+<span class="c-c">git add</span> -A
+<span class="c-c">git commit</span> -m <span class="c-s">"Your change description"</span>
+<span class="c-c">git push</span>
+
+<span class="c-m"># On the SERVER — pull and restart</span>
+<span class="c-c">cd</span> /var/www/scribeai
+<span class="c-c">git pull</span>
+<span class="c-c">source</span> venv/bin/activate
+<span class="c-c">pip install</span> -r requirements.txt   <span class="c-m"># only if requirements changed</span>
+<span class="c-c">pm2 restart</span> scribeai-api</pre>
+  </section>
+
+  <!-- TROUBLESHOOTING -->
+  <section id="troubleshooting" class="stage">
+    <div class="stage-header">
+      <div class="stage-circle" style="background:rgba(255,68,102,0.08);border-color:rgba(255,68,102,0.25);color:var(--danger)">⚠</div>
+      <div class="stage-title-block">
+        <div class="stage-tag">// debugging</div>
+        <h2>Troubleshooting Common Issues</h2>
+      </div>
+    </div>
+
+    <h3>502 Bad Gateway from Nginx</h3>
+    <p>The FastAPI server is not running or crashed. Check PM2:</p>
+    <pre><span class="c-c">pm2 status</span>
+<span class="c-c">pm2 logs</span> scribeai-api --lines 50
+<span class="c-m"># If stopped, restart:</span>
+<span class="c-c">pm2 restart</span> scribeai-api</pre>
+
+    <h3>Registration returns 500 or silent error</h3>
+    <p>Almost always a database issue. Check: is the <code>SUPABASE_URL</code> the correct URL from Supabase dashboard? Does it end in <code>.supabase.co</code> (not <code>.supabase.com</code>)? Is the <code>service_role</code> key correct?</p>
+    <pre><span class="c-m"># Test Supabase connection from the server</span>
+<span class="c-c">source</span> venv/bin/activate
+<span class="c-c">python3</span> -c <span class="c-s">"from supabase import create_client; import os; from dotenv import load_dotenv; load_dotenv(); c = create_client(os.getenv('SUPABASE_URL'), os.getenv('SUPABASE_KEY')); print(c.table('api_keys').select('id').limit(1).execute())"</span></pre>
+
+    <h3>Certbot SSL fails ("Domain not resolved")</h3>
+    <p>DNS hasn't propagated yet, or the A records are incorrect. Verify with:</p>
+    <pre><span class="c-c">nslookup</span> yourdomain.com
+<span class="c-m"># The IP shown should match your VPS IP</span></pre>
+
+    <h3>git push returns 403</h3>
+    <p>GitHub no longer accepts password auth. Set your remote URL to include your Personal Access Token:</p>
+    <pre><span class="c-c">git remote set-url origin</span> https://YOUR_TOKEN@github.com/username/scribeai.git</pre>
+
+    <h3>API key generation broken (NOT NULL violation)</h3>
+    <p>The key generation function in your code is not creating the <code>api_key</code> field before inserting. Ensure your registration function generates the key as: <code style="color:var(--green);font-family:'Space Mono',monospace">import uuid; key = "sk_live_" + uuid.uuid4().hex</code></p>
+  </section>
+
+  <!-- FINAL CHECKLIST -->
+  <section id="checklist" class="stage">
+    <div class="stage-header">
+      <div class="stage-circle" style="background:rgba(0,255,136,0.12);border-color:rgba(0,255,136,0.35)">✓</div>
+      <div class="stage-title-block">
+        <div class="stage-tag">// done?</div>
+        <h2>Final Deployment Checklist</h2>
+        <p>Click each item to mark it complete.</p>
+      </div>
+    </div>
+
+    <div class="final-checklist" id="finalChecklist">
+      <div class="final-row" onclick="toggleCheck(this)">
+        <div class="final-check"></div>
+        <div><div class="final-text">Hostinger KVM VPS purchased and SSH access confirmed</div><div class="final-sub">Ubuntu 22.04 · root login working</div></div>
+        <div class="final-stage">Stage 1</div>
+      </div>
+      <div class="final-row" onclick="toggleCheck(this)">
+        <div class="final-check"></div>
+        <div><div class="final-text">Python, Node.js, PM2, Nginx, Certbot installed</div><div class="final-sub">All version checks pass</div></div>
+        <div class="final-stage">Stage 2</div>
+      </div>
+      <div class="final-row" onclick="toggleCheck(this)">
+        <div class="final-check"></div>
+        <div><div class="final-text">Repo cloned, Python venv created, requirements installed</div><div class="final-sub">(venv) prompt showing</div></div>
+        <div class="final-stage">Stage 3</div>
+      </div>
+      <div class="final-row" onclick="toggleCheck(this)">
+        <div class="final-check"></div>
+        <div><div class="final-text">Supabase project created, keys copied</div><div class="final-sub">service_role key and JWT secret saved</div></div>
+        <div class="final-stage">Stage 4</div>
+      </div>
+      <div class="final-row" onclick="toggleCheck(this)">
+        <div class="final-check"></div>
+        <div><div class="final-text">SQL tables created: api_keys, generations</div><div class="final-sub">RLS enabled · increment_tokens_used function created</div></div>
+        <div class="final-stage">Stage 4</div>
+      </div>
+      <div class="final-row" onclick="toggleCheck(this)">
+        <div class="final-check"></div>
+        <div><div class="final-text">.env file created with all required variables</div><div class="final-sub">SUPABASE_URL, SUPABASE_KEY, OPENAI_API_KEY confirmed</div></div>
+        <div class="final-stage">Stage 5</div>
+      </div>
+      <div class="final-row" onclick="toggleCheck(this)">
+        <div class="final-check"></div>
+        <div><div class="final-text">Nginx configured and pointing to port 8000</div><div class="final-sub">nginx -t passes · site enabled</div></div>
+        <div class="final-stage">Stage 6</div>
+      </div>
+      <div class="final-row" onclick="toggleCheck(this)">
+        <div class="final-check"></div>
+        <div><div class="final-text">SSL certificate installed via Certbot</div><div class="final-sub">https:// working · auto-renewal confirmed</div></div>
+        <div class="final-stage">Stage 6</div>
+      </div>
+      <div class="final-row" onclick="toggleCheck(this)">
+        <div class="final-check"></div>
+        <div><div class="final-text">App running via PM2 · pm2 save + pm2 startup done</div><div class="final-sub">/health endpoint returns {"status":"ok"}</div></div>
+        <div class="final-stage">Stage 7</div>
+      </div>
+      <div class="final-row" onclick="toggleCheck(this)">
+        <div class="final-check"></div>
+        <div><div class="final-text">Lemon Squeezy products created + webhook configured</div><div class="final-sub">LEMONSQUEEZY_WEBHOOK_SECRET set in .env</div></div>
+        <div class="final-stage">Stage 8</div>
+      </div>
+      <div class="final-row" onclick="toggleCheck(this)">
+        <div class="final-check"></div>
+        <div><div class="final-text">End-to-end test passed: register → API key received → generation works</div><div class="final-sub">Row confirmed in Supabase api_keys table</div></div>
+        <div class="final-stage">Done ✓</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+function toggleCheck(row) {
+  row.classList.toggle('done');
+  updateProgress();
+}
+function updateProgress() {
+  const total = document.querySelectorAll('.final-row').length;
+  const done = document.querySelectorAll('.final-row.done').length;
+  document.getElementById('progressText').textContent = done + ' / ' + total;
+  document.getElementById('progressBar').style.width = (done/total*100) + '%';
+}
+
+// Highlight active nav on scroll
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 100) current = s.id; });
+  navLinks.forEach(l => {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

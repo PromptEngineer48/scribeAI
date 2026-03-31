@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ScribeAI — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #060910;
+    --sidebar: #0a0e16;
+    --surface: #0d1117;
+    --card: #111820;
+    --card2: #131b24;
+    --border: #1a2535;
+    --border2: #213040;
+    --green: #00ff88;
+    --green2: #00cc6a;
+    --cyan: #00d4ff;
+    --muted: #3a5060;
+    --text: #c8d8e4;
+    --text2: #6a8a9a;
+    --yellow: #ffd166;
+    --danger: #ff4466;
+    --purple: #9b72ff;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; display: flex; min-height: 100vh; overflow-x: hidden; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: var(--sidebar);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 50;
+  }
+  .sidebar-logo {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border);
+    font-family: 'Space Mono', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--green);
+  }
+  .sidebar-logo span { color: var(--text2); }
+  .sidebar-section { padding: 1.25rem 1rem 0.5rem; font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 1rem;
+    margin: 0.1rem 0.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text2);
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+  .nav-item.active { background: rgba(0,255,136,0.08); color: var(--green); }
+  .nav-item.active .nav-icon { color: var(--green); }
+  .nav-icon { font-size: 1rem; width: 20px; text-align: center; }
+  .sidebar-bottom {
+    margin-top: auto;
+    padding: 1rem;
+    border-top: 1px solid var(--border);
+  }
+  .user-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 6px;
+    background: var(--card);
+    border: 1px solid var(--border);
+  }
+  .user-avatar {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--green), var(--cyan));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; font-weight: 700; color: #000;
+    flex-shrink: 0;
+  }
+  .user-name { font-size: 0.825rem; font-weight: 700; }
+  .user-plan {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--green);
+    display: block;
+    margin-top: 1px;
+  }
+
+  /* MAIN */
+  .main {
+    margin-left: 240px;
+    flex: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .topbar {
+    height: 60px;
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(6,9,16,0.8);
+    backdrop-filter: blur(8px);
+    position: sticky;
+    top: 0;
+    z-index: 40;
+  }
+  .topbar-title { font-size: 0.9rem; font-weight: 700; color: var(--text2); }
+  .topbar-title strong { color: var(--text); }
+  .topbar-right { display: flex; gap: 0.75rem; align-items: center; }
+  .tag-pill {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 100px;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+  }
+  .tag-pill.green { border-color: rgba(0,255,136,0.3); color: var(--green); background: rgba(0,255,136,0.06); }
+  .content { padding: 2rem; flex: 1; }
+
+  /* STATS ROW */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    transition: border-color 0.2s;
+  }
+  .stat-card:hover { border-color: var(--border2); }
+  .stat-label { font-family: 'Space Mono', monospace; font-size: 0.7rem; letter-spacing: 0.08em; color: var(--text2); text-transform: uppercase; margin-bottom: 0.5rem; }
+  .stat-value { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.02em; }
+  .stat-value.green { color: var(--green); }
+  .stat-value.cyan { color: var(--cyan); }
+  .stat-value.yellow { color: var(--yellow); }
+  .stat-sub { font-size: 0.75rem; color: var(--text2); margin-top: 0.25rem; }
+
+  /* QUOTA BAR */
+  .quota-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: center;
+  }
+  .quota-title { font-size: 0.875rem; font-weight: 700; margin-bottom: 0.25rem; }
+  .quota-sub { font-size: 0.8rem; color: var(--text2); margin-bottom: 1rem; }
+  .quota-bar-bg { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .quota-bar-fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--cyan)); border-radius: 3px; transition: width 0.8s ease; }
+  .quota-bar-fill.warn { background: linear-gradient(90deg, var(--yellow), #ff8c42); }
+  .quota-nums { display: flex; justify-content: space-between; margin-top: 0.5rem; font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--text2); }
+  .quota-nums strong { color: var(--text); }
+  .api-key-box { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1rem 1.25rem; }
+  .api-key-label { font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; color: var(--text2); text-transform: uppercase; margin-bottom: 0.5rem; }
+  .api-key-val {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .copy-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    background: rgba(0,255,136,0.08);
+    border: 1px solid rgba(0,255,136,0.2);
+    color: var(--green);
+    padding: 0.3rem 0.75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .copy-btn:hover { background: rgba(0,255,136,0.15); }
+
+  /* GRID PANELS */
+  .panels-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .panel-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .panel-title { font-size: 0.875rem; font-weight: 700; }
+  .panel-tag { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--text2); }
+  .panel-body { padding: 1rem 0; }
+
+  /* CHART */
+  .chart-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 120px;
+    padding: 0 1.5rem;
+  }
+  .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+  .bar {
+    width: 100%;
+    background: rgba(0,255,136,0.15);
+    border-radius: 3px 3px 0 0;
+    border: 1px solid rgba(0,255,136,0.25);
+    transition: all 0.3s;
+    position: relative;
+    min-height: 4px;
+  }
+  .bar:hover { background: rgba(0,255,136,0.3); }
+  .bar-today { background: rgba(0,255,136,0.4) !important; border-color: var(--green) !important; }
+  .bar-label { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: var(--muted); }
+  .chart-footer { padding: 0.75rem 1.5rem 0; display: flex; justify-content: space-between; font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--muted); border-top: 1px solid var(--border); margin-top: 0.75rem; }
+
+  /* HISTORY TABLE */
+  .history-table { width: 100%; border-collapse: collapse; }
+  .history-table th {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0.6rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .history-table td {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.825rem;
+    border-bottom: 1px solid rgba(26,37,53,0.6);
+    color: var(--text);
+  }
+  .history-table tr:last-child td { border-bottom: none; }
+  .history-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .type-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+  .type-badge.blog { color: var(--cyan); border-color: rgba(0,212,255,0.25); background: rgba(0,212,255,0.06); }
+  .type-badge.email { color: var(--yellow); border-color: rgba(255,209,102,0.25); background: rgba(255,209,102,0.06); }
+  .type-badge.ad { color: var(--purple); border-color: rgba(155,114,255,0.25); background: rgba(155,114,255,0.06); }
+  .type-badge.product { color: var(--green); border-color: rgba(0,255,136,0.25); background: rgba(0,255,136,0.06); }
+  .type-badge.social { color: #ff8c42; border-color: rgba(255,140,66,0.25); background: rgba(255,140,66,0.06); }
+  .tokens-val { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--text2); }
+  .model-val { font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--text2); }
+  .action-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .action-btn:hover { border-color: var(--green); color: var(--green); }
+
+  /* GENERATE PANEL */
+  .gen-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+  }
+  .gen-body { padding: 1.5rem; display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 1rem; align-items: end; }
+  .field label { display: block; font-family: 'Space Mono', monospace; font-size: 0.68rem; letter-spacing: 0.08em; color: var(--text2); text-transform: uppercase; margin-bottom: 0.5rem; }
+  .field select, .field input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.875rem;
+    padding: 0.65rem 0.875rem;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  .field select:focus, .field input:focus { border-color: var(--green); }
+  .btn-generate {
+    background: var(--green);
+    color: #000;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.875rem;
+    padding: 0.65rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn-generate:hover { background: var(--green2); transform: translateY(-1px); }
+  .output-box {
+    margin: 0 1.5rem 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.25rem;
+    font-size: 0.875rem;
+    line-height: 1.7;
+    color: var(--text);
+    min-height: 80px;
+    position: relative;
+  }
+  .output-box.placeholder { color: var(--muted); font-style: italic; }
+  .output-meta {
+    display: flex;
+    gap: 1.5rem;
+    margin: 0 1.5rem 1.5rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text2);
+  }
+  .output-meta strong { color: var(--green); }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">scribe<span>AI</span></div>
+
+  <div class="sidebar-section">Main</div>
+  <a href="#" class="nav-item active"><span class="nav-icon">⚡</span> Overview</a>
+  <a href="#" class="nav-item"><span class="nav-icon">✍️</span> Generate</a>
+  <a href="#" class="nav-item"><span class="nav-icon">📜</span> History</a>
+
+  <div class="sidebar-section">Account</div>
+  <a href="#" class="nav-item"><span class="nav-icon">🔑</span> API Keys</a>
+  <a href="#" class="nav-item"><span class="nav-icon">💳</span> Billing</a>
+  <a href="#" class="nav-item"><span class="nav-icon">⚙️</span> Settings</a>
+
+  <div class="sidebar-section">Docs</div>
+  <a href="api-docs.html" class="nav-item"><span class="nav-icon">📡</span> API Reference</a>
+  <a href="index.html" class="nav-item"><span class="nav-icon">🌐</span> Back to Site</a>
+
+  <div class="sidebar-bottom">
+    <div class="user-pill">
+      <div class="user-avatar">JD</div>
+      <div>
+        <div class="user-name">John Dev</div>
+        <span class="user-plan">PRO PLAN</span>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title"><strong>Overview</strong> · March 2025</div>
+    <div class="topbar-right">
+      <div class="tag-pill green">● API Online</div>
+      <div class="tag-pill">GPT-4o · Active</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Tokens This Month</div>
+        <div class="stat-value green">284,910</div>
+        <div class="stat-sub">of 500,000 limit · 57%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Generations</div>
+        <div class="stat-value cyan">1,247</div>
+        <div class="stat-sub">+142 this week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg. Response</div>
+        <div class="stat-value yellow">380ms</div>
+        <div class="stat-sub">Below 400ms target ✓</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Days Until Reset</div>
+        <div class="stat-value" style="color:var(--text)">14</div>
+        <div class="stat-sub">Resets Apr 1, 2025</div>
+      </div>
+    </div>
+
+    <!-- QUOTA + API KEY -->
+    <div class="quota-card">
+      <div>
+        <div class="quota-title">Token Quota — Pro Plan</div>
+        <div class="quota-sub">284,910 of 500,000 tokens used this billing period</div>
+        <div class="quota-bar-bg">
+          <div class="quota-bar-fill" style="width: 57%;"></div>
+        </div>
+        <div class="quota-nums"><span>0</span><span><strong>284,910</strong> used</span><span>500,000</span></div>
+      </div>
+      <div>
+        <div class="api-key-box">
+          <div class="api-key-label">Your API Key</div>
+          <div class="api-key-val">
+            <span>sk_live_a8f2...9c3d</span>
+            <button class="copy-btn" onclick="this.textContent='Copied!'">Copy</button>
+          </div>
+        </div>
+        <div style="margin-top:0.75rem; display:flex; gap:0.75rem;">
+          <button class="copy-btn" style="flex:1; padding:0.5rem; text-align:center; border-color:var(--border2); color:var(--text2);">Regenerate Key</button>
+          <button class="copy-btn" style="flex:1; padding:0.5rem; text-align:center;">Reveal Full Key</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUICK GENERATE -->
+    <div class="gen-panel">
+      <div class="panel-header">
+        <div class="panel-title">Quick Generate</div>
+        <div class="panel-tag">// try the API</div>
+      </div>
+      <div class="gen-body">
+        <div class="field">
+          <label>Content Type</label>
+          <select>
+            <option>Blog Intro</option>
+            <option>Full Blog Post</option>
+            <option>Ad Copy</option>
+            <option>Email Subject</option>
+            <option>Product Description</option>
+            <option>Social Post</option>
+            <option>SEO Meta</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Topic / Prompt</label>
+          <input type="text" placeholder="e.g. remote work trends 2025" id="topicInput"/>
+        </div>
+        <div class="field">
+          <label>Tone</label>
+          <select>
+            <option>Professional</option>
+            <option>Casual</option>
+            <option>Persuasive</option>
+            <option>Friendly</option>
+            <option>Witty</option>
+          </select>
+        </div>
+        <button class="btn-generate" onclick="doGenerate()">Generate →</button>
+      </div>
+      <div class="output-box placeholder" id="outputBox">Your generated content will appear here...</div>
+      <div class="output-meta" id="outputMeta" style="display:none">
+        <span>Words: <strong id="wc">—</strong></span>
+        <span>Tokens: <strong id="tc">—</strong></span>
+        <span>Model: <strong id="mc">—</strong></span>
+        <span>Time: <strong id="rt">—</strong></span>
+      </div>
+    </div>
+
+    <!-- CHART + HISTORY -->
+    <div class="panels-row">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Daily Generations</div>
+          <div class="panel-tag">last 14 days</div>
+        </div>
+        <div class="panel-body">
+          <div class="chart-bars" id="chartBars"></div>
+          <div class="chart-footer">
+            <span>14 days ago</span>
+            <span>Today</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Content Type Mix</div>
+          <div class="panel-tag">this month</div>
+        </div>
+        <div class="panel-body" style="padding:1rem 1.5rem;">
+          <div id="typeMix"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORY TABLE -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Recent Generations</div>
+        <div class="panel-tag">// last 10</div>
+      </div>
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Topic</th>
+            <th>Tokens</th>
+            <th>Model</th>
+            <th>Date</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="historyTbody"></tbody>
+      </table>
+    </div>
+
+  </div>
+</main>
+
+<script>
+// Generate chart bars
+const bars = [22,45,31,67,89,44,56,78,92,38,61,74,88,105];
+const barsEl = document.getElementById('chartBars');
+const max = Math.max(...bars);
+bars.forEach((v, i) => {
+  const wrap = document.createElement('div');
+  wrap.className = 'bar-wrap';
+  const bar = document.createElement('div');
+  bar.className = 'bar' + (i === bars.length-1 ? ' bar-today' : '');
+  bar.style.height = (v/max*100) + '%';
+  bar.title = v + ' generations';
+  wrap.appendChild(bar);
+  barsEl.appendChild(wrap);
+});
+
+// Type mix
+const types = [
+  { label: 'Blog Posts', pct: 38, color: '#00d4ff' },
+  { label: 'Ad Copy', pct: 24, color: '#9b72ff' },
+  { label: 'Email', pct: 19, color: '#ffd166' },
+  { label: 'Product Desc.', pct: 12, color: '#00ff88' },
+  { label: 'Social', pct: 7, color: '#ff8c42' },
+];
+const mixEl = document.getElementById('typeMix');
+types.forEach(t => {
+  mixEl.innerHTML += `
+    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.9rem;">
+      <div style="font-size:0.8rem;width:110px;color:var(--text2)">${t.label}</div>
+      <div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+        <div style="width:${t.pct}%;height:100%;background:${t.color};border-radius:3px"></div>
+      </div>
+      <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--text2);width:28px;text-align:right">${t.pct}%</div>
+    </div>`;
+});
+
+// History rows
+const historyData = [
+  ['blog', 'Blog Intro', 'Remote work trends 2025', '312', 'gpt-4o', 'Mar 15'],
+  ['email', 'Email Subject', 'Product launch announcement', '84', 'gpt-4o-mini', 'Mar 15'],
+  ['ad', 'Ad Copy', 'SaaS landing page hero', '228', 'claude-sonnet', 'Mar 14'],
+  ['product', 'Product Desc.', 'Wireless noise-cancelling headphones', '189', 'gpt-4o', 'Mar 14'],
+  ['social', 'Social Post', 'LinkedIn thought leadership on AI', '97', 'gpt-4o-mini', 'Mar 13'],
+  ['blog', 'Full Article', 'How to scale a SaaS to $10k MRR', '1842', 'gpt-4o', 'Mar 13'],
+  ['ad', 'Ad Copy', 'Google Ads for B2B software', '198', 'claude-sonnet', 'Mar 12'],
+  ['email', 'Email Subject', 'Cold outreach fintech', '76', 'gpt-4o-mini', 'Mar 12'],
+  ['product', 'Product Desc.', 'Ergonomic standing desk', '154', 'gpt-4o', 'Mar 11'],
+  ['social', 'Social Post', 'Twitter thread on productivity', '223', 'gpt-4o', 'Mar 11'],
+];
+const typeLabels = { blog:'Blog', email:'Email', ad:'Ad', product:'Product', social:'Social' };
+const tbody = document.getElementById('historyTbody');
+historyData.forEach(([type, typeName, topic, tokens, model, date]) => {
+  tbody.innerHTML += `<tr>
+    <td><span class="type-badge ${type}">${typeName}</span></td>
+    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${topic}</td>
+    <td class="tokens-val">${parseInt(tokens).toLocaleString()}</td>
+    <td class="model-val">${model}</td>
+    <td style="color:var(--text2);font-size:0.8rem">${date}</td>
+    <td><button class="action-btn">View</button></td>
+  </tr>`;
+});
+
+// Fake generate
+const outputs = [
+  "Remote work has fundamentally reshaped the modern office — and in 2025, the shift feels permanent. What started as a pandemic-era experiment has evolved into a strategic advantage for companies willing to embrace distributed teams. Here's what the data says about where remote work is headed next...",
+  "The future of work isn't in an office. It's everywhere. As distributed teams become the norm rather than the exception, the companies that master async communication, results-driven management, and digital-first culture will win the talent war in 2025 and beyond.",
+  "Three years ago, 'remote work' was a privilege. Today, it's a baseline expectation. The organizations that haven't adapted are hemorrhaging talent to those that have — and the gap is widening faster than most leadership teams realize."
+];
+function doGenerate() {
+  const btn = document.querySelector('.btn-generate');
+  const box = document.getElementById('outputBox');
+  const meta = document.getElementById('outputMeta');
+  btn.textContent = 'Generating...';
+  btn.disabled = true;
+  box.className = 'output-box placeholder';
+  box.textContent = '●  Routing to GPT-4o...';
+  setTimeout(() => {
+    box.textContent = '●  Crafting content...';
+    setTimeout(() => {
+      const out = outputs[Math.floor(Math.random()*outputs.length)];
+      box.className = 'output-box';
+      box.textContent = out;
+      const wc = out.split(' ').length;
+      const tc = Math.floor(wc * 1.35);
+      document.getElementById('wc').textContent = wc;
+      document.getElementById('tc').textContent = tc;
+      document.getElementById('mc').textContent = 'gpt-4o';
+      document.getElementById('rt').textContent = Math.floor(280 + Math.random()*180) + 'ms';
+      meta.style.display = 'flex';
+      btn.textContent = 'Generate →';
+      btn.disabled = false;
+    }, 900);
+  }, 600);
+}
+</script>
+</body>
+</html>

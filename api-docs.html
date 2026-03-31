@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ScribeAI — API Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #060910;
+    --sidebar: #090d14;
+    --surface: #0d1117;
+    --card: #111820;
+    --border: #1a2535;
+    --border2: #213040;
+    --green: #00ff88;
+    --green2: #00cc6a;
+    --cyan: #00d4ff;
+    --muted: #3a5060;
+    --text: #c8d8e4;
+    --text2: #6a8a9a;
+    --yellow: #ffd166;
+    --danger: #ff4466;
+    --purple: #9b72ff;
+    --orange: #ff8c42;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; display: flex; min-height: 100vh; line-height: 1.6; }
+
+  /* LEFT NAV */
+  .doc-nav {
+    width: 260px;
+    flex-shrink: 0;
+    background: var(--sidebar);
+    border-right: 1px solid var(--border);
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    overflow-y: auto;
+    padding-bottom: 2rem;
+  }
+  .doc-nav::-webkit-scrollbar { width: 4px; }
+  .doc-nav::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+  .doc-logo {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    font-family: 'Space Mono', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .doc-logo span { color: var(--text2); }
+  .doc-logo a { font-size: 0.7rem; color: var(--text2); text-decoration: none; font-family: 'Syne', sans-serif; font-weight: 600; }
+  .doc-logo a:hover { color: var(--green); }
+  .nav-group { padding: 1.25rem 1rem 0.5rem; font-family: 'Space Mono', monospace; font-size: 0.62rem; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; }
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 1rem;
+    margin: 0.1rem 0.5rem;
+    border-radius: 5px;
+    font-size: 0.835rem;
+    font-weight: 600;
+    color: var(--text2);
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+  .nav-link:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+  .nav-link.active { color: var(--green); background: rgba(0,255,136,0.07); }
+  .method-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+    font-weight: 700;
+    margin-left: auto;
+  }
+  .get { background: rgba(0,212,255,0.1); color: var(--cyan); }
+  .post { background: rgba(0,255,136,0.1); color: var(--green); }
+  .del { background: rgba(255,68,102,0.1); color: var(--danger); }
+
+  /* MAIN */
+  .doc-main { margin-left: 260px; flex: 1; max-width: 900px; padding: 3rem 3rem; }
+
+  h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 0.75rem; }
+  h2 { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem; margin-top: 3.5rem; padding-top: 3.5rem; border-top: 1px solid var(--border); }
+  h2:first-of-type { margin-top: 2rem; border-top: none; padding-top: 0; }
+  h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; margin-top: 2rem; color: var(--text); }
+  p { color: var(--text2); font-size: 0.925rem; line-height: 1.75; margin-bottom: 1rem; }
+  a { color: var(--cyan); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .intro-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(0,255,136,0.07);
+    border: 1px solid rgba(0,255,136,0.2);
+    color: var(--green);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    padding: 0.3rem 0.875rem;
+    border-radius: 100px;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.06em;
+  }
+  .base-url-box {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.875rem 1.25rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    margin-bottom: 2rem;
+  }
+  .base-label { color: var(--muted); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; }
+  .base-url { color: var(--cyan); }
+
+  /* ENDPOINT BLOCK */
+  .endpoint {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+  }
+  .endpoint-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    background: #0d151f;
+  }
+  .method-pill {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.3rem 0.75rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .method-post { background: rgba(0,255,136,0.12); color: var(--green); border: 1px solid rgba(0,255,136,0.25); }
+  .method-get { background: rgba(0,212,255,0.12); color: var(--cyan); border: 1px solid rgba(0,212,255,0.25); }
+  .method-delete { background: rgba(255,68,102,0.12); color: var(--danger); border: 1px solid rgba(255,68,102,0.25); }
+  .endpoint-path { font-family: 'Space Mono', monospace; font-size: 0.875rem; color: var(--text); }
+  .endpoint-desc { margin-left: auto; font-size: 0.8rem; color: var(--text2); }
+  .endpoint-body { padding: 1.5rem; }
+  .endpoint-body p { margin-bottom: 1rem; }
+
+  /* PARAMS TABLE */
+  .params-table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; font-size: 0.845rem; }
+  .params-table th {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0.6rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    background: rgba(0,0,0,0.2);
+  }
+  .params-table td {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid rgba(26,37,53,0.7);
+    vertical-align: top;
+  }
+  .params-table tr:last-child td { border-bottom: none; }
+  .param-name { font-family: 'Space Mono', monospace; font-size: 0.8rem; color: var(--cyan); }
+  .param-type { font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--purple); }
+  .param-req { font-family: 'Space Mono', monospace; font-size: 0.65rem; padding: 0.15rem 0.4rem; border-radius: 3px; }
+  .req { background: rgba(255,68,102,0.1); color: var(--danger); border: 1px solid rgba(255,68,102,0.2); }
+  .opt { background: rgba(106,138,154,0.1); color: var(--text2); border: 1px solid var(--border); }
+  .param-desc { font-size: 0.83rem; color: var(--text2); line-height: 1.6; }
+
+  /* CODE BLOCK */
+  pre {
+    background: #05080f;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.25rem;
+    overflow-x: auto;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 1.8;
+    margin: 0.5rem 0 1.25rem;
+  }
+  .c-m { color: var(--muted); }
+  .c-g { color: var(--green); }
+  .c-c { color: var(--cyan); }
+  .c-y { color: var(--yellow); }
+  .c-s { color: #a8d8a8; }
+  .c-t { color: var(--text); }
+  .c-p { color: var(--purple); }
+  .c-o { color: var(--orange); }
+
+  /* TABS */
+  .code-tabs { display: flex; gap: 0; margin-bottom: 0; border-bottom: 1px solid var(--border); }
+  .code-tab {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    padding: 0.6rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-bottom: none;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: -1px;
+    border-radius: 5px 5px 0 0;
+  }
+  .code-tab.active { background: #05080f; color: var(--green); border-color: var(--border); border-bottom-color: #05080f; }
+  .code-tab-body { display: none; }
+  .code-tab-body.active { display: block; }
+  .code-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 0 0 6px 6px; overflow: hidden; }
+
+  /* RESPONSE CODES */
+  .response-codes { display: flex; flex-direction: column; gap: 0.5rem; margin: 0.5rem 0 1.5rem; }
+  .response-row { display: flex; align-items: flex-start; gap: 1rem; padding: 0.75rem 1rem; background: var(--card); border: 1px solid var(--border); border-radius: 6px; font-size: 0.835rem; }
+  .resp-code { font-family: 'Space Mono', monospace; font-size: 0.8rem; font-weight: 700; min-width: 40px; }
+  .resp-200 { color: var(--green); }
+  .resp-400 { color: var(--yellow); }
+  .resp-401 { color: var(--danger); }
+  .resp-429 { color: var(--orange); }
+  .resp-500 { color: var(--danger); }
+  .resp-desc { color: var(--text2); }
+
+  /* INFO BOX */
+  .info-box {
+    display: flex;
+    gap: 0.875rem;
+    background: rgba(0,255,136,0.04);
+    border: 1px solid rgba(0,255,136,0.15);
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-size: 0.875rem;
+    color: var(--text2);
+    line-height: 1.65;
+  }
+  .info-box.warn { background: rgba(255,209,102,0.04); border-color: rgba(255,209,102,0.2); }
+  .info-icon { flex-shrink: 0; font-size: 1rem; margin-top: 0.1rem; }
+
+  /* CONTENT TYPES TABLE */
+  .types-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin: 1rem 0;
+  }
+  .type-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.875rem 1rem;
+    font-size: 0.825rem;
+  }
+  .type-value { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--cyan); margin-bottom: 0.25rem; }
+  .type-label { color: var(--text2); font-size: 0.8rem; }
+</style>
+</head>
+<body>
+
+<nav class="doc-nav">
+  <div class="doc-logo">
+    scribe<span>AI</span>
+    <a href="index.html">← Back</a>
+  </div>
+
+  <div class="nav-group">Getting Started</div>
+  <a href="#intro" class="nav-link active">Introduction</a>
+  <a href="#auth" class="nav-link">Authentication</a>
+  <a href="#errors" class="nav-link">Errors & Limits</a>
+
+  <div class="nav-group">Endpoints</div>
+  <a href="#generate" class="nav-link">Generate Content <span class="method-tag post">POST</span></a>
+  <a href="#stream" class="nav-link">Stream Content <span class="method-tag post">POST</span></a>
+  <a href="#history" class="nav-link">List History <span class="method-tag get">GET</span></a>
+  <a href="#get-one" class="nav-link">Get Generation <span class="method-tag get">GET</span></a>
+  <a href="#usage" class="nav-link">Usage Stats <span class="method-tag get">GET</span></a>
+  <a href="#delete" class="nav-link">Delete Generation <span class="method-tag del">DEL</span></a>
+
+  <div class="nav-group">Reference</div>
+  <a href="#content-types" class="nav-link">Content Types</a>
+  <a href="#models" class="nav-link">Models</a>
+  <a href="#sdks" class="nav-link">SDKs & Examples</a>
+</nav>
+
+<main class="doc-main">
+
+  <!-- INTRO -->
+  <section id="intro">
+    <div class="intro-badge">API v2.1 · Stable</div>
+    <h1>API Reference</h1>
+    <p>ScribeAI provides a single REST API for generating high-quality content using the best language models available. All requests are authenticated via API key and return structured JSON.</p>
+
+    <div class="base-url-box">
+      <span class="base-label">Base URL</span>
+      <span class="base-url">https://api.scribeai.dev/v1</span>
+    </div>
+
+    <div class="info-box">
+      <span class="info-icon">ℹ️</span>
+      <span>All requests must be sent over HTTPS. The API uses standard HTTP response codes. Dates and times are in UTC ISO 8601 format.</span>
+    </div>
+  </section>
+
+  <!-- AUTH -->
+  <section id="auth">
+    <h2>Authentication</h2>
+    <p>ScribeAI uses API key authentication. Include your key in the <code style="color:var(--cyan);font-family:'Space Mono',monospace">Authorization</code> header on every request.</p>
+
+    <pre><span class="c-m"># Include in every request</span>
+<span class="c-t">Authorization: Bearer sk_live_your_api_key_here</span></pre>
+
+    <p>Your API key is available in your <a href="dashboard.html">dashboard</a>. Keys follow the format <code style="color:var(--green);font-family:'Space Mono',monospace">sk_live_xxxx</code>. Keep your key secret — never expose it in client-side code.</p>
+
+    <div class="info-box warn">
+      <span class="info-icon">⚠️</span>
+      <span>If you suspect your key has been compromised, regenerate it immediately from the dashboard. Old keys are invalidated instantly on regeneration.</span>
+    </div>
+  </section>
+
+  <!-- ERRORS -->
+  <section id="errors">
+    <h2>Errors & Rate Limits</h2>
+    <p>ScribeAI uses standard HTTP response codes. Errors return a JSON body with a <code style="color:var(--cyan);font-family:'Space Mono',monospace">code</code> and human-readable <code style="color:var(--cyan);font-family:'Space Mono',monospace">message</code>.</p>
+
+    <div class="response-codes">
+      <div class="response-row"><span class="resp-code resp-200">200</span><span class="resp-desc">Success. Generation completed.</span></div>
+      <div class="response-row"><span class="resp-code resp-400">400</span><span class="resp-desc">Bad request. Missing or invalid parameters. Check the <code style="font-family:'Space Mono',monospace">message</code> field.</span></div>
+      <div class="response-row"><span class="resp-code resp-401">401</span><span class="resp-desc">Unauthorized. Invalid or missing API key.</span></div>
+      <div class="response-row"><span class="resp-code resp-429">429</span><span class="resp-desc">Token quota exceeded. Upgrade your plan or wait for reset.</span></div>
+      <div class="response-row"><span class="resp-code resp-500">500</span><span class="resp-desc">Server error. Upstream model unavailable. Retry after 5s.</span></div>
+    </div>
+
+    <pre><span class="c-m">// Example error response</span>
+<span class="c-t">{</span>
+  <span class="c-c">"error"</span><span class="c-t">: {</span>
+    <span class="c-c">"code"</span><span class="c-t">: </span><span class="c-s">"quota_exceeded"</span><span class="c-t">,</span>
+    <span class="c-c">"message"</span><span class="c-t">: </span><span class="c-s">"Monthly token quota exceeded. Resets in 14 days."</span><span class="c-t">,</span>
+    <span class="c-c">"tokens_used"</span><span class="c-t">: </span><span class="c-y">500000</span><span class="c-t">,</span>
+    <span class="c-c">"tokens_limit"</span><span class="c-t">: </span><span class="c-y">500000</span>
+  <span class="c-t">}</span>
+<span class="c-t">}</span></pre>
+
+    <p>Rate limits are per-API-key: <strong style="color:var(--text)">60 requests/minute</strong> on all plans. Streaming requests count as a single request.</p>
+  </section>
+
+  <!-- GENERATE -->
+  <section id="generate">
+    <h2>Generate Content</h2>
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method-pill method-post">POST</span>
+        <span class="endpoint-path">/v1/generate</span>
+        <span class="endpoint-desc">Create a new generation</span>
+      </div>
+      <div class="endpoint-body">
+        <p>The primary endpoint. Submits a generation request and returns the completed content synchronously. For long-form content, consider using the streaming endpoint.</p>
+
+        <h3>Request Parameters</h3>
+        <table class="params-table">
+          <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td class="param-name">type</td><td class="param-type">string</td><td><span class="param-req req">required</span></td><td class="param-desc">Content type. See <a href="#content-types">Content Types</a> for full list.</td></tr>
+            <tr><td class="param-name">topic</td><td class="param-type">string</td><td><span class="param-req req">required</span></td><td class="param-desc">The topic, prompt, or subject to generate content about. Max 500 chars.</td></tr>
+            <tr><td class="param-name">tone</td><td class="param-type">string</td><td><span class="param-req opt">optional</span></td><td class="param-desc">Writing tone. Options: <code style="color:var(--cyan);font-family:'Space Mono',monospace">professional</code>, <code style="color:var(--cyan);font-family:'Space Mono',monospace">casual</code>, <code style="color:var(--cyan);font-family:'Space Mono',monospace">persuasive</code>, <code style="color:var(--cyan);font-family:'Space Mono',monospace">witty</code>. Default: <code style="font-family:'Space Mono',monospace">professional</code>.</td></tr>
+            <tr><td class="param-name">words</td><td class="param-type">integer</td><td><span class="param-req opt">optional</span></td><td class="param-desc">Target word count. Range: 50–2000. Default varies by content type.</td></tr>
+            <tr><td class="param-name">model</td><td class="param-type">string</td><td><span class="param-req opt">optional</span></td><td class="param-desc">Override model selection. Options: <code style="color:var(--cyan);font-family:'Space Mono',monospace">gpt-4o</code>, <code style="color:var(--cyan);font-family:'Space Mono',monospace">gpt-4o-mini</code>, <code style="color:var(--cyan);font-family:'Space Mono',monospace">claude-sonnet</code>. Pro+ plans only.</td></tr>
+            <tr><td class="param-name">language</td><td class="param-type">string</td><td><span class="param-req opt">optional</span></td><td class="param-desc">Output language code (ISO 639-1). Default: <code style="font-family:'Space Mono',monospace">en</code>. Supports 40+ languages.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="code-tabs">
+          <button class="code-tab active" onclick="switchTab(this,'curl')">cURL</button>
+          <button class="code-tab" onclick="switchTab(this,'python')">Python</button>
+          <button class="code-tab" onclick="switchTab(this,'node')">Node.js</button>
+        </div>
+        <div class="code-wrap">
+          <div class="code-tab-body active" id="tab-curl">
+<pre><span class="c-m">$ </span><span class="c-c">curl</span> -X POST https://api.scribeai.dev/v1/generate \
+  -H <span class="c-s">"Authorization: Bearer sk_live_xxxx"</span> \
+  -H <span class="c-s">"Content-Type: application/json"</span> \
+  -d <span class="c-s">'{
+    "type": "blog_intro",
+    "topic": "The future of remote work in 2025",
+    "tone": "professional",
+    "words": 200
+  }'</span></pre>
+          </div>
+          <div class="code-tab-body" id="tab-python">
+<pre><span class="c-p">import</span> <span class="c-t">requests</span>
+
+<span class="c-t">response</span> = <span class="c-t">requests</span>.<span class="c-c">post</span>(
+    <span class="c-s">"https://api.scribeai.dev/v1/generate"</span>,
+    headers={<span class="c-s">"Authorization"</span>: <span class="c-s">"Bearer sk_live_xxxx"</span>},
+    json={
+        <span class="c-s">"type"</span>: <span class="c-s">"blog_intro"</span>,
+        <span class="c-s">"topic"</span>: <span class="c-s">"The future of remote work in 2025"</span>,
+        <span class="c-s">"tone"</span>: <span class="c-s">"professional"</span>,
+        <span class="c-s">"words"</span>: <span class="c-y">200</span>
+    }
+)
+<span class="c-t">data</span> = <span class="c-t">response</span>.<span class="c-c">json</span>()
+<span class="c-p">print</span>(<span class="c-t">data</span>[<span class="c-s">"content"</span>])</pre>
+          </div>
+          <div class="code-tab-body" id="tab-node">
+<pre><span class="c-p">const</span> <span class="c-t">res</span> = <span class="c-p">await</span> <span class="c-c">fetch</span>(<span class="c-s">"https://api.scribeai.dev/v1/generate"</span>, {
+  method: <span class="c-s">"POST"</span>,
+  headers: {
+    <span class="c-s">"Authorization"</span>: <span class="c-s">"Bearer sk_live_xxxx"</span>,
+    <span class="c-s">"Content-Type"</span>: <span class="c-s">"application/json"</span>
+  },
+  body: <span class="c-c">JSON.stringify</span>({
+    type: <span class="c-s">"blog_intro"</span>,
+    topic: <span class="c-s">"The future of remote work in 2025"</span>,
+    tone: <span class="c-s">"professional"</span>,
+    words: <span class="c-y">200</span>
+  })
+});
+<span class="c-p">const</span> { content, tokens_used } = <span class="c-p">await</span> <span class="c-t">res</span>.<span class="c-c">json</span>();</pre>
+          </div>
+        </div>
+
+        <h3>Response</h3>
+<pre><span class="c-t">{</span>
+  <span class="c-c">"id"</span><span class="c-t">: </span><span class="c-s">"gen_01jk9xmf3p4q..."</span><span class="c-t">,</span>
+  <span class="c-c">"type"</span><span class="c-t">: </span><span class="c-s">"blog_intro"</span><span class="c-t">,</span>
+  <span class="c-c">"content"</span><span class="c-t">: </span><span class="c-s">"The office as we knew it is gone. In its place, a new distributed work culture..."</span><span class="c-t">,</span>
+  <span class="c-c">"words"</span><span class="c-t">: </span><span class="c-y">203</span><span class="c-t">,</span>
+  <span class="c-c">"tokens_used"</span><span class="c-t">: </span><span class="c-y">284</span><span class="c-t">,</span>
+  <span class="c-c">"model"</span><span class="c-t">: </span><span class="c-s">"gpt-4o"</span><span class="c-t">,</span>
+  <span class="c-c">"latency_ms"</span><span class="c-t">: </span><span class="c-y">312</span><span class="c-t">,</span>
+  <span class="c-c">"created_at"</span><span class="c-t">: </span><span class="c-s">"2025-03-15T14:22:03Z"</span>
+<span class="c-t">}</span></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- STREAM -->
+  <section id="stream">
+    <h2>Stream Content</h2>
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method-pill method-post">POST</span>
+        <span class="endpoint-path">/v1/generate</span>
+        <span class="endpoint-desc">Add "stream": true to any generate request</span>
+      </div>
+      <div class="endpoint-body">
+        <p>Add <code style="color:var(--green);font-family:'Space Mono',monospace">"stream": true</code> to any generate request to receive a Server-Sent Events (SSE) stream. Tokens are delivered as they are generated. Available on Pro and Scale plans.</p>
+
+<pre><span class="c-m">// Stream request — same endpoint, add stream: true</span>
+<span class="c-t">{</span>
+  <span class="c-c">"type"</span><span class="c-t">: </span><span class="c-s">"blog_intro"</span><span class="c-t">,</span>
+  <span class="c-c">"topic"</span><span class="c-t">: </span><span class="c-s">"AI in healthcare"</span><span class="c-t">,</span>
+  <span class="c-c">"stream"</span><span class="c-t">: </span><span class="c-p">true</span>
+<span class="c-t">}</span>
+
+<span class="c-m">// SSE response stream</span>
+<span class="c-t">data: </span><span class="c-s">{"delta": "Healthcare"}</span>
+<span class="c-t">data: </span><span class="c-s">{"delta": " is experiencing"}</span>
+<span class="c-t">data: </span><span class="c-s">{"delta": " its most significant"}</span>
+<span class="c-t">data: </span><span class="c-s">{"delta": " transformation in decades..."}</span>
+<span class="c-t">data: </span><span class="c-s">{"done": true, "tokens_used": 214, "id": "gen_01jk..."}</span></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section id="history">
+    <h2>List History</h2>
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method-pill method-get">GET</span>
+        <span class="endpoint-path">/v1/generations</span>
+        <span class="endpoint-desc">List past generations</span>
+      </div>
+      <div class="endpoint-body">
+        <p>Returns a paginated list of your past generations, newest first. Supports filtering by content type.</p>
+        <table class="params-table">
+          <thead><tr><th>Query Param</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td class="param-name">limit</td><td class="param-type">integer</td><td><span class="param-req opt">optional</span></td><td class="param-desc">Number of results. Default 20, max 100.</td></tr>
+            <tr><td class="param-name">offset</td><td class="param-type">integer</td><td><span class="param-req opt">optional</span></td><td class="param-desc">Pagination offset. Default 0.</td></tr>
+            <tr><td class="param-name">type</td><td class="param-type">string</td><td><span class="param-req opt">optional</span></td><td class="param-desc">Filter by content type (e.g. <code style="font-family:'Space Mono',monospace">blog_intro</code>).</td></tr>
+          </tbody>
+        </table>
+<pre><span class="c-m">GET</span> /v1/generations?limit=10&type=blog_intro
+
+<span class="c-t">{</span>
+  <span class="c-c">"data"</span><span class="c-t">: [</span>
+    <span class="c-t">{</span> <span class="c-c">"id"</span><span class="c-t">: </span><span class="c-s">"gen_01jk9x..."</span><span class="c-t">, </span><span class="c-c">"type"</span><span class="c-t">: </span><span class="c-s">"blog_intro"</span><span class="c-t">, </span><span class="c-c">"words"</span><span class="c-t">: </span><span class="c-y">203</span><span class="c-t">, ... }</span>
+  <span class="c-t">],</span>
+  <span class="c-c">"total"</span><span class="c-t">: </span><span class="c-y">1247</span><span class="c-t">,</span>
+  <span class="c-c">"offset"</span><span class="c-t">: </span><span class="c-y">0</span><span class="c-t">,</span>
+  <span class="c-c">"limit"</span><span class="c-t">: </span><span class="c-y">10</span>
+<span class="c-t">}</span></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- USAGE -->
+  <section id="usage">
+    <h2>Usage Stats</h2>
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method-pill method-get">GET</span>
+        <span class="endpoint-path">/v1/usage</span>
+        <span class="endpoint-desc">Get current token usage</span>
+      </div>
+      <div class="endpoint-body">
+<pre><span class="c-t">{</span>
+  <span class="c-c">"plan"</span><span class="c-t">: </span><span class="c-s">"pro"</span><span class="c-t">,</span>
+  <span class="c-c">"tokens_used"</span><span class="c-t">: </span><span class="c-y">284910</span><span class="c-t">,</span>
+  <span class="c-c">"tokens_limit"</span><span class="c-t">: </span><span class="c-y">500000</span><span class="c-t">,</span>
+  <span class="c-c">"tokens_remaining"</span><span class="c-t">: </span><span class="c-y">215090</span><span class="c-t">,</span>
+  <span class="c-c">"reset_date"</span><span class="c-t">: </span><span class="c-s">"2025-04-01T00:00:00Z"</span><span class="c-t">,</span>
+  <span class="c-c">"generations_this_month"</span><span class="c-t">: </span><span class="c-y">1247</span>
+<span class="c-t">}</span></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTENT TYPES -->
+  <section id="content-types">
+    <h2>Content Types</h2>
+    <p>Pass one of these values as the <code style="color:var(--cyan);font-family:'Space Mono',monospace">type</code> parameter.</p>
+    <div class="types-grid">
+      <div class="type-item"><div class="type-value">blog_intro</div><div class="type-label">Blog post introduction</div></div>
+      <div class="type-item"><div class="type-value">blog_post</div><div class="type-label">Full blog article</div></div>
+      <div class="type-item"><div class="type-value">blog_outline</div><div class="type-label">Structured outline</div></div>
+      <div class="type-item"><div class="type-value">ad_copy</div><div class="type-label">Advertisement copy</div></div>
+      <div class="type-item"><div class="type-value">email_subject</div><div class="type-label">Email subject line</div></div>
+      <div class="type-item"><div class="type-value">email_body</div><div class="type-label">Full email body</div></div>
+      <div class="type-item"><div class="type-value">product_desc</div><div class="type-label">Product description</div></div>
+      <div class="type-item"><div class="type-value">social_post</div><div class="type-label">Social media post</div></div>
+      <div class="type-item"><div class="type-value">seo_meta</div><div class="type-label">Title + meta description</div></div>
+      <div class="type-item"><div class="type-value">landing_hero</div><div class="type-label">Landing page headline</div></div>
+      <div class="type-item"><div class="type-value">press_release</div><div class="type-label">Press release</div></div>
+      <div class="type-item"><div class="type-value">cold_email</div><div class="type-label">Cold outreach email</div></div>
+    </div>
+  </section>
+
+  <!-- MODELS -->
+  <section id="models">
+    <h2>Models</h2>
+    <table class="params-table">
+      <thead><tr><th>Model</th><th>Speed</th><th>Quality</th><th>Plans</th></tr></thead>
+      <tbody>
+        <tr><td class="param-name">gpt-4o-mini</td><td style="color:var(--green);font-family:'Space Mono',monospace;font-size:0.8rem">~180ms</td><td class="param-desc">Good for short-form and bulk generation</td><td class="param-type">All plans</td></tr>
+        <tr><td class="param-name">gpt-4o</td><td style="color:var(--cyan);font-family:'Space Mono',monospace;font-size:0.8rem">~380ms</td><td class="param-desc">Best for long-form, nuanced content</td><td class="param-type">Pro + Scale</td></tr>
+        <tr><td class="param-name">claude-sonnet</td><td style="color:var(--yellow);font-family:'Space Mono',monospace;font-size:0.8rem">~420ms</td><td class="param-desc">Excellent for persuasive and creative copy</td><td class="param-type">Pro + Scale</td></tr>
+        <tr><td class="param-name">llama-3-70b</td><td style="color:var(--orange);font-family:'Space Mono',monospace;font-size:0.8rem">~610ms</td><td class="param-desc">Open-source alternative, Scale plan only</td><td class="param-type">Scale only</td></tr>
+      </tbody>
+    </table>
+    <p>If no model is specified, ScribeAI automatically selects the optimal model based on content type and your plan.</p>
+  </section>
+
+</main>
+
+<script>
+function switchTab(el, name) {
+  document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.code-tab-body').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+</script>
+</body>
+</html>
