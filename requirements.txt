@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+supabase
+python-jose[cryptography]
+PyJWT
+openai
+anthropic
+python-dotenv
+python-multipart
